@@ -359,12 +359,12 @@ const BASE64: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
 pub fn base64(bytes: &[u8]) -> String {
     let mut s = Vec::with_capacity(bytes.len().div_ceil(3) * 4);
     let sym = |n: u32, shift: u32| BASE64[((n >> shift) & 63) as usize];
-    let mut groups = bytes.chunks_exact(3);
-    for g in &mut groups {
-        let n = (u32::from(g[0]) << 16) | (u32::from(g[1]) << 8) | u32::from(g[2]);
+    let (groups, rest) = bytes.as_chunks::<3>();
+    for &[a, b, c] in groups {
+        let n = (u32::from(a) << 16) | (u32::from(b) << 8) | u32::from(c);
         s.extend_from_slice(&[sym(n, 18), sym(n, 12), sym(n, 6), sym(n, 0)]);
     }
-    match *groups.remainder() {
+    match *rest {
         [a] => {
             let n = u32::from(a) << 16;
             s.extend_from_slice(&[sym(n, 18), sym(n, 12), b'=', b'=']);
