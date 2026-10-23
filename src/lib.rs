@@ -407,6 +407,29 @@ mod tests {
     }
 
     #[test]
+    fn manifest_matches_the_code() {
+        let m: Value = serde_json::from_str(include_str!("../plugin/figcraft-plugin.json")).unwrap();
+        // Releases are tagged with this version.
+        assert_eq!(m["version"].as_str(), Some(env!("CARGO_PKG_VERSION")), "plugin/figcraft-plugin.json and Cargo.toml versions");
+        let command = |id: &str| m["commands"].as_array().and_then(|c| c.iter().find(|c| c["id"] == id)).cloned().unwrap();
+        let options = |command: &Value, name: &str| -> Vec<String> {
+            let p = command["params"].as_array().and_then(|p| p.iter().find(|p| p["name"] == name)).unwrap();
+            p["options"].as_array().unwrap().iter().map(|o| o.as_str().unwrap().to_string()).collect()
+        };
+        let labels = |l: Vec<&str>| l.into_iter().map(str::to_string).collect::<Vec<_>>();
+        let apply = command("apply");
+        assert_eq!(options(&apply, "type"), labels(Kind::ALL.iter().map(|k| k.label()).collect()));
+        assert_eq!(options(&apply, "shape"), labels(Shape::ALL.iter().map(|s| s.label()).collect()));
+        assert_eq!(options(&apply, "colorMode"), labels(ColorMode::ALL.iter().map(|c| c.label()).collect()));
+        assert_eq!(options(&apply, "blend"), labels(BLENDS.iter().map(|b| b.0).collect()));
+        assert_eq!(options(&command("preset"), "preset"), labels(presets::built_in_names()));
+        // The form's defaults are the plugin's defaults.
+        let defaults: Map<String, Value> =
+            apply["params"].as_array().unwrap().iter().map(|p| (p["name"].as_str().unwrap().to_string(), p["default"].clone())).collect();
+        assert_eq!(Settings::from_json(&Value::Object(defaults)), Settings::default());
+    }
+
+    #[test]
     fn tile_options_snap_to_the_nearest() {
         assert_eq!(tile_option(100), "128");
         assert_eq!(tile_option(16), "64");

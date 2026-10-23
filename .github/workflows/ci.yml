@@ -2,11 +2,16 @@ name: CI
 
 on:
   push:
+    branches: ["**"]
+    tags: ["v*"]
   pull_request:
+  workflow_dispatch:
 
 jobs:
   check:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.package.outputs.version }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -18,3 +23,57 @@ jobs:
       - run: cargo clippy --release --target wasm32-unknown-unknown --lib -- -D warnings
       - run: cargo test
       - run: ./build.sh
+      - name: Package the plugin
+        id: package
+        run: ./package.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: noise-texture-${{ steps.package.outputs.version }}
+          path: dist/
+          if-no-files-found: error
+
+  # Every build of the default branch that passes publishes the version in Cargo.toml and
+  # plugin/figcraft-plugin.json as release v<version>, once: bump the version to publish the next
+  # one. Pushing a tag v<version> publishes it too (the tag must match the version).
+  release:
+    needs: check
+    if: >-
+      github.event_name == 'push' &&
+      (startsWith(github.ref, 'refs/tags/v') || github.ref_name == github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      VERSION: ${{ needs.check.outputs.version }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: noise-texture-${{ needs.check.outputs.version }}
+          path: dist
+      - name: Publish the release
+        run: |
+          tag="v$VERSION"
+          if [ "$GITHUB_REF_TYPE" = tag ] && [ "$GITHUB_REF_NAME" != "$tag" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME doesn't match the plugin's version $VERSION"
+            exit 1
+          fi
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            echo "::notice::Release $tag already exists: bump the version in Cargo.toml and plugin/figcraft-plugin.json to publish a new one"
+            exit 0
+          fi
+          cat > notes.md <<EOF
+          Плагин **Noise Texture** для [FigCraft](https://github.com/storytold/figcraft), версия $VERSION.
+
+          **Установка:** распакуйте \`noise-texture-$VERSION.zip\`, затем в FigCraft выберите
+          *Plugins ▸ Development ▸ Import plugin from manifest…* и укажите
+          \`noise-texture/figcraft-plugin.json\`.
+
+          SHA-256 архива — в \`noise-texture-$VERSION.zip.sha256\`.
+          EOF
+          gh release create "$tag" dist/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "Noise Texture $VERSION" \
+            --notes-file notes.md \
+            --generate-notes

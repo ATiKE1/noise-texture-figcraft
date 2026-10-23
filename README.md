@@ -19,10 +19,13 @@
 
 ## Установка
 
-Готовый плагин лежит в папке [`plugin/`](plugin/) (манифест + собранный `noise_texture.wasm`).
+1. Скачайте `noise-texture-<версия>.zip` со страницы
+   [Releases](https://github.com/ATiKE1/noise-texture-figcraft/releases) и распакуйте его.
+2. В FigCraft: **Plugins ▸ Development ▸ Import plugin from manifest…**
+3. Выберите `noise-texture/figcraft-plugin.json`.
 
-1. В FigCraft: **Plugins ▸ Development ▸ Import plugin from manifest…**
-2. Выберите `plugin/figcraft-plugin.json`.
+Тот же плагин лежит в папке [`plugin/`](plugin/) репозитория (манифест + собранный
+`noise_texture.wasm`): можно импортировать `plugin/figcraft-plugin.json` прямо из клона.
 
 После импорта в меню **Plugins** появится **Noise Texture** с командами:
 
@@ -146,6 +149,22 @@ cargo run --release --example previews -- docs/previews.png   # картинка
 
 SDK плагинов FigCraft (`figcraft-plugin-sdk`) подключается из репозитория FigCraft по
 зафиксированной ревизии.
+
+`./package.sh` упаковывает собранный плагин в `dist/noise-texture-<версия>.zip`. В архиве папка
+`noise-texture/` с манифестом и модулем, README и лицензии лежат в `assets/`. Рядом создаётся файл
+с SHA-256 архива.
+
+## Релизы
+
+CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) на каждый push проверяет код (fmt,
+clippy, тесты), собирает модуль и упаковывает плагин. Архив прикладывается к прогону как
+артефакт.
+
+Если сборка основной ветки прошла, CI сам публикует GitHub Release `v<версия>` с архивом и его
+SHA-256. Версия берётся из `Cargo.toml` и `plugin/figcraft-plugin.json`: тест и `package.sh`
+проверяют, что они совпадают. Каждая версия публикуется один раз. Чтобы выпустить следующую,
+поднимите версию в обоих файлах. Релиз также создаётся при push тега `v<версия>`; тег должен
+совпадать с версией.
 
 ## Лицензия
 
