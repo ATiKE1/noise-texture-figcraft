@@ -1,0 +1,8 @@
+{"command": "plugin.import", "params": {"path": "plugin"}}
+{"command": "shape.rectangle", "params": {"x": 0, "y": 0, "width": 320, "height": 200, "props": {"name": "Card", "fill": "#3366CC", "cornerRadius": 16}}}
+{"command": "select.set", "params": {"ids": [{"$step": 1}]}}
+{"command": "plugin.run", "params": {"id": "io.github.atike1.noise-texture", "command": "preset", "params": {"preset": "Film grain"}}}
+{"command": "shape.rectangle", "params": {"x": 340, "y": 0, "width": 200, "height": 200, "props": {"name": "Paper", "fill": "#F2EDE4"}}}
+{"command": "select.set", "params": {"ids": [{"$step": 4}]}}
+{"command": "plugin.run", "params": {"id": "io.github.atike1.noise-texture", "command": "apply", "params": {"type": "Static", "size": 2, "density": 35, "color": "#5C4B37", "opacity": 25, "blend": "Multiply", "tile": 128, "seed": 7}}}
+{"command": "node.get", "params": {"id": {"$step": 4}}}

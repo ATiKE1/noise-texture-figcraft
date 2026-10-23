@@ -1,0 +1,5 @@
+# Tests may unwrap, expect and panic: a failing assertion is the point of a test. The plugin itself
+# may not (lints in Cargo.toml), as in FigCraft.
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true
+allow-panic-in-tests = true

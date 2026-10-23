@@ -1,0 +1,43 @@
+[package]
+name = "noise-texture"
+version = "1.0.0"
+edition = "2024"
+rust-version = "1.95"
+license = "MIT OR Apache-2.0"
+description = "Noise & texture for FigCraft: seamless tiled noise, grain and procedural textures as image fills"
+repository = "https://github.com/atike1/noise-texture-figcraft"
+publish = false
+
+[lib]
+# cdylib: the FigCraft plugin module (wasm32-unknown-unknown); rlib: host-side tests and the
+# preview example.
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# The plugin ABI, pinned to the FigCraft revision this plugin was tested against.
+figcraft-plugin-sdk = { git = "https://github.com/storytold/figcraft", rev = "80f916326fb94f3a88cb24e64f396f564a0ebc06" }
+
+# Independent decoders the tests check the PNG and zlib output against.
+[dev-dependencies]
+miniz_oxide = "0.8"
+png = "0.17"
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+todo = "deny"
+unimplemented = "deny"
+unreachable = "deny"
+
+# FigCraft runs plugins in an interpreter with an instruction budget: optimise for speed, keep the
+# module small with LTO and no unwinding.
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

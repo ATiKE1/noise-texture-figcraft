@@ -1,0 +1,57 @@
+{
+  "id": "io.github.atike1.noise-texture",
+  "name": "Noise Texture",
+  "version": "1.0.0",
+  "author": "atike1",
+  "description": "Seamless tiled noise, grain and procedural textures (static, grain, clouds, marble, wood, cells, waves, halftone) as image fills, with live updates and presets.",
+  "main": "noise_texture.wasm",
+  "api": 2,
+  "permissions": {
+    "access": "write",
+    "commands": ["view.get", "image.place", "edit.delete", "node.get", "node.set", "fill.add", "fill.set", "fill.remove", "select.set"]
+  },
+  "commands": [
+    { "id": "panel", "label": "Noise & texture…" },
+    {
+      "id": "apply",
+      "label": "Add noise…",
+      "params": [
+        { "name": "type", "label": "Texture", "type": "select", "options": ["Static", "Grain", "Clouds", "Marble", "Wood", "Cells", "Waves", "Halftone"], "default": "Static" },
+        { "name": "size", "label": "Particle size (px)", "type": "number", "default": 1, "min": 1, "max": 64 },
+        { "name": "scale", "label": "Feature scale (px)", "type": "number", "default": 64, "min": 2, "max": 512 },
+        { "name": "density", "label": "Amount (%)", "type": "number", "default": 50, "min": 0, "max": 100 },
+        { "name": "detail", "label": "Detail", "type": "number", "default": 4, "min": 1, "max": 8 },
+        { "name": "shape", "label": "Particle shape", "type": "select", "options": ["Square", "Circle"], "default": "Square" },
+        { "name": "colorMode", "label": "Colours", "type": "select", "options": ["Single colour", "Two colours", "Random colours"], "default": "Single colour" },
+        { "name": "color", "label": "Particle colour", "type": "color", "default": "#000000" },
+        { "name": "color2", "label": "Second colour", "type": "color", "default": "#FFFFFF" },
+        { "name": "opacity", "label": "Particle opacity (%)", "type": "number", "default": 20, "min": 0, "max": 100 },
+        { "name": "background", "label": "Background", "type": "color", "default": "#FFFFFF" },
+        { "name": "backgroundOpacity", "label": "Background opacity (%)", "type": "number", "default": 0, "min": 0, "max": 100 },
+        {
+          "name": "blend",
+          "label": "Blend mode",
+          "type": "select",
+          "options": ["Normal", "Darken", "Multiply", "Color burn", "Lighten", "Screen", "Color dodge", "Overlay", "Soft light", "Hard light", "Difference", "Exclusion", "Hue", "Saturation", "Color", "Luminosity"],
+          "default": "Normal"
+        },
+        { "name": "tile", "label": "Tile size (px)", "type": "number", "default": 256, "min": 16, "max": 512 },
+        { "name": "seed", "label": "Seed", "type": "number", "default": 1, "min": 0, "max": 999999 }
+      ]
+    },
+    {
+      "id": "preset",
+      "label": "Add preset…",
+      "params": [
+        {
+          "name": "preset",
+          "label": "Preset",
+          "type": "select",
+          "options": ["Fine grain", "Film grain", "Paper", "TV static", "Colour static", "Speckles", "Clouds", "Marble", "Wood", "Stone", "Ripples", "Halftone"],
+          "default": "Film grain"
+        }
+      ]
+    },
+    { "id": "remove", "label": "Remove texture" }
+  ]
+}
